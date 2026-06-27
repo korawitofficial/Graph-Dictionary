@@ -1,0 +1,64 @@
+/* iOS Scroll and Layout Resets */
+html,
+body {
+    height: 100dvh;
+    width: 100%;
+    overflow: hidden;
+    position: fixed;
+    background-color: #000;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Support iOS notches and home indicators */
+.safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+}
+
+.safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-bottom-margin {
+    margin-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Custom momentum-scrolling for list wrappers on iOS */
+.ios-scroll {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Force interactive action targets to be responsive and ignore double taps on mobile */
+button,
+input,
+select,
+textarea {
+    touch-action: manipulation;
+}
+
+/* Springy Transitions mirroring Apple kinematics */
+.spring-transition {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hidden {
+    display: none;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 99px;
+}

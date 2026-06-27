@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Graph Dictionary</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons for Premium UI -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        border: 'rgba(63, 63, 70, 0.4)',
+                        background: '#09090b',
+                        foreground: '#f4f4f5',
+                        iosBlue: '#007aff',
+                        iosGray: '#8e8e93',
+                        iosDarkBg: '#1c1c1e',
+                        accent: {
+                            DEFAULT: '#8b5cf6',
+                            hover: '#a78bfa'
+                        }
+                    },
+                    borderRadius: {
+                        'ios': '14px',
+                        'ios-lg': '22px'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-black text-foreground font-sans flex flex-col">
+
+    <!-- Core App Shell Layout -->
+    <div class="flex-1 flex flex-col md:flex-row overflow-hidden relative w-full h-[100dvh] safe-top">
+
+        <!-- DESKTOP LEFT SIDEBAR -->
+        <aside id="desktop-sidebar"
+            class="hidden md:flex w-80 border-r border-zinc-800/60 bg-zinc-950/80 backdrop-blur-xl flex-col shrink-0 spring-transition">
+            <!-- Header -->
+            <div class="p-4 border-b border-zinc-800/60 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div
+                        class="w-8 h-8 rounded-xl bg-violet-600 flex items-center justify-center text-white shadow-lg shadow-violet-500/10">
+                        <i data-lucide="brain-circuit" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-sm font-bold tracking-tight text-white leading-tight">Graph Dictionary</h1>
+                        <p class="text-[10px] text-zinc-500 font-mono">v1.4.0 • Pro Settings</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Search Panel -->
+            <div class="p-4 border-b border-zinc-800/60 flex flex-col gap-1.5">
+                <label class="text-[10px] font-mono uppercase tracking-wider text-zinc-500">Fuzzy Search</label>
+                <div class="relative">
+                    <i data-lucide="search" class="absolute left-3 top-3 w-4 h-4 text-zinc-500"></i>
+                    <input type="text" id="desktop-search" placeholder="Search dictionary..."
+                        class="w-full pl-9 pr-8 py-2.5 bg-zinc-900/60 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-violet-500 transition-colors">
+                    <button id="desktop-search-clear"
+                        class="absolute right-2.5 top-3 text-zinc-500 hover:text-zinc-300 hidden">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div id="desktop-suggestions"
+                    class="absolute left-4 right-4 top-40 bg-zinc-950 border border-zinc-800/80 rounded-xl shadow-2xl max-h-60 overflow-y-auto hidden z-50 animate-fade-in">
+                </div>
+            </div>
+
+            <!-- Action Tools & Collapsible Sections -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-4 ios-scroll">
+
+                <!-- Collapsible Make New Node Accordion (Desktop Mode) -->
+                <div class="border border-zinc-800/80 rounded-xl bg-zinc-900/20 overflow-hidden">
+                    <button id="desktop-add-toggle"
+                        class="w-full px-3 py-3 flex items-center justify-between text-left hover:bg-zinc-900/40 transition-colors">
+                        <span
+                            class="text-[10px] font-mono uppercase tracking-wider text-zinc-300 font-bold flex items-center gap-1.5">
+                            <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-violet-400"></i>
+                            Add Entry Node
+                        </span>
+                        <i data-lucide="chevron-down" id="desktop-add-chevron"
+                            class="w-4 h-4 text-zinc-500 transition-transform duration-300"></i>
+                    </button>
+
+                    <div id="desktop-add-body"
+                        class="p-3 border-t border-zinc-800 bg-zinc-950/40 space-y-2.5 transition-all duration-300">
+                        <form id="desktop-add-form" class="space-y-2">
+                            <input type="text" id="d-new-word" placeholder="Word (e.g. meticulous)" required
+                                class="w-full px-3 py-2 bg-zinc-900/60 border border-zinc-800 rounded-lg text-xs placeholder-zinc-500 focus:outline-none focus:border-violet-500">
+                            <select id="d-new-pos"
+                                class="w-full px-3 py-2 bg-zinc-900/60 border border-zinc-800 rounded-lg text-xs text-zinc-300 focus:outline-none">
+                                <option value="noun">Noun (n.)</option>
+                                <option value="verb">Verb (v.)</option>
+                                <option value="adj">Adjective (adj.)</option>
+                                <option value="adv">Adverb (adv.)</option>
+                            </select>
+                            <textarea id="d-new-def" placeholder="Definition..." required rows="2"
+                                class="w-full px-3 py-2 bg-zinc-900/60 border border-zinc-800 rounded-lg text-xs placeholder-zinc-500 focus:outline-none focus:border-violet-500"></textarea>
+
+                            <div class="grid grid-cols-2 gap-1.5">
+                                <input type="text" id="d-new-rel" placeholder="Related Word"
+                                    class="px-2 py-2 bg-zinc-900/60 border border-zinc-800 rounded-lg text-xs placeholder-zinc-500 focus:outline-none">
+                                <select id="d-new-rel-type"
+                                    class="px-2 py-2 bg-zinc-900/60 border border-zinc-800 rounded-lg text-xs text-zinc-300">
+                                    <option value="synonym">Synonym</option>
+                                    <option value="antonym">Antonym</option>
+                                    <option value="hypernym">Hypernym</option>
+                                    <option value="related">Related</option>
+                                </select>
+                            </div>
+                            <button type="submit"
+                                class="w-full py-2 bg-violet-600 hover:bg-violet-500 active:scale-[0.98] transition-all text-white font-medium rounded-lg text-xs flex items-center justify-center gap-1">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Node Document
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Filter Layers -->
+                <div class="p-3 border border-zinc-800/80 rounded-xl bg-zinc-900/20 space-y-3">
+                    <h3 class="text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-bold">Scope & Filters
+                    </h3>
+
+                    <div class="grid grid-cols-2 gap-1 bg-zinc-900 p-1 rounded-lg border border-zinc-800/80">
+                        <button id="d-scope-global"
+                            class="py-1 text-xs rounded text-center transition-colors bg-zinc-850 text-violet-400 font-medium">Global</button>
+                        <button id="d-scope-local"
+                            class="py-1 text-xs rounded text-center transition-colors text-zinc-400 font-medium">Local</button>
+                    </div>
+
+                    <div class="space-y-1.5" id="desktop-filters">
+                        <label
+                            class="flex items-center justify-between text-xs text-zinc-300 hover:bg-zinc-900/40 p-1 rounded cursor-pointer">
+                            <span class="flex items-center gap-2"><span
+                                    class="w-2 h-2 rounded-full bg-emerald-500"></span>Synonyms</span>
+                            <input type="checkbox" data-edge-type="synonym" checked
+                                class="rounded border-zinc-700 bg-zinc-900 text-violet-500 focus:ring-0">
+                        </label>
+                        <label
+                            class="flex items-center justify-between text-xs text-zinc-300 hover:bg-zinc-900/40 p-1 rounded cursor-pointer">
+                            <span class="flex items-center gap-2"><span
+                                    class="w-2 h-2 rounded-full bg-rose-500"></span>Antonyms</span>
+                            <input type="checkbox" data-edge-type="antonym" checked
+                                class="rounded border-zinc-700 bg-zinc-900 text-violet-500 focus:ring-0">
+                        </label>
+                        <label
+                            class="flex items-center justify-between text-xs text-zinc-300 hover:bg-zinc-900/40 p-1 rounded cursor-pointer">
+                            <span class="flex items-center gap-2"><span
+                                    class="w-2 h-2 rounded-full bg-amber-500"></span>Hypernyms</span>
+                            <input type="checkbox" data-edge-type="hypernym" checked
+                                class="rounded border-zinc-700 bg-zinc-900 text-violet-500 focus:ring-0">
+                        </label>
+                        <label
+                            class="flex items-center justify-between text-xs text-zinc-300 hover:bg-zinc-900/40 p-1 rounded cursor-pointer">
+                            <span class="flex items-center gap-2"><span
+                                    class="w-2 h-2 rounded-full bg-violet-500"></span>Related</span>
+                            <input type="checkbox" data-edge-type="related" checked
+                                class="rounded border-zinc-700 bg-zinc-900 text-violet-500 focus:ring-0">
+                        </label>
+                    </div>
+
+                    <div class="space-y-1 pt-2">
+                        <div class="flex items-center justify-between text-[11px] text-zinc-400">
+                            <span>Local Depth Limit</span>
+                            <span id="d-depth-val" class="font-mono text-violet-400">2 hops</span>
+                        </div>
+                        <input type="range" id="d-depth-slider" min="1" max="4" value="2"
+                            class="w-full accent-violet-500 h-1 bg-zinc-800 rounded cursor-pointer">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Backup Stats -->
+            <div class="p-4 border-t border-zinc-800/60 bg-zinc-950/40 flex flex-col gap-2">
+                <div class="flex justify-between items-center text-xs text-zinc-500 font-mono">
+                    <span>Database Nodes</span>
+                    <span id="d-total-nodes" class="text-zinc-300 font-bold">0</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="btn-d-import"
+                        class="py-1.5 text-[11px] bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 rounded-lg text-zinc-300 flex items-center justify-center gap-1.5">
+                        <i data-lucide="upload" class="w-3.5 h-3.5"></i> Import
+                    </button>
+                    <button id="btn-d-export"
+                        class="py-1.5 text-[11px] bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 rounded-lg text-zinc-300 flex items-center justify-center gap-1.5">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i> Export
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN GRAPH AREA -->
+        <main class="flex-1 relative h-full w-full bg-black overflow-hidden flex flex-col">
+
+            <!-- Premium iOS Floating Head (Top Bar Navigation on Mobile Only) -->
+            <header
+                class="md:hidden h-14 border-b border-zinc-900 bg-black/75 backdrop-blur-md px-4 flex items-center justify-between z-10 shrink-0">
+                <div class="flex items-center gap-2.5">
+                    <div
+                        class="w-7 h-7 rounded-lg bg-violet-600 flex items-center justify-center text-white font-black shadow-lg shadow-violet-500/20">
+                        <i data-lucide="brain-circuit" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xs font-bold tracking-tight text-white">Semantic Graph</h1>
+                        <p class="text-[9px] text-zinc-500 font-mono" id="m-stats">0 words • 0 links</p>
+                    </div>
+                </div>
+
+                <!-- Quick System Trigger on Mobile header -->
+                <div class="flex items-center gap-1">
+                    <button id="m-btn-settings-open"
+                        class="p-2 rounded-lg bg-zinc-900/60 border border-zinc-800 text-zinc-300 active:scale-95 transition-transform"
+                        title="App Settings">
+                        <i data-lucide="settings" class="w-4.5 h-4.5"></i>
+                    </button>
+                    <button id="btn-m-reset"
+                        class="p-2 rounded-lg bg-zinc-900/60 border border-zinc-800 text-red-400 hover:text-red-300 active:scale-95 transition-transform"
+                        title="Reset Database">
+                        <i data-lucide="rotate-ccw" class="w-4.5 h-4.5"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Grid Overlay background -->
+            <div
+                class="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(#1f2937_1px,transparent_1px)] [background-size:20px_20px] z-0">
+            </div>
+
+            <!-- Physics Canvas Renderer -->
+            <canvas id="graph-canvas" class="w-full h-full block cursor-grab active:cursor-grabbing z-0"></canvas>
+
+            <!-- Draw-Link Mode & Quick Settings Indicator (iOS and Computer Desktop friendly) -->
+            <div class="absolute top-4 left-4 md:left-auto md:right-4 flex flex-col gap-2 z-10 max-w-[280px]">
+
+                <!-- Instructions Widget -->
+                <div
+                    class="p-3 bg-zinc-950/85 border border-zinc-800 backdrop-blur rounded-2xl shadow-xl flex flex-col gap-1.5 select-none">
+                    <div class="flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-1.5 text-xs font-bold text-violet-400">
+                            <i data-lucide="link-2" class="w-4 h-4"></i>
+                            <span>Draw Link Gesture</span>
+                        </div>
+
+                        <!-- Mobile Draw Mode Switcher -->
+                        <button id="btn-draw-mode"
+                            class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-lg border border-zinc-700 bg-zinc-900 hover:bg-zinc-850 text-zinc-300 transition-all flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-zinc-500" id="draw-mode-indicator"></span>
+                            <span id="draw-mode-label">Normal</span>
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-zinc-400 leading-normal font-sans">
+                        <span class="hidden md:inline font-semibold text-violet-300">Desktop:</span> Hold <span
+                            class="bg-zinc-900 border border-zinc-700 px-1 py-0.5 rounded font-mono text-[9px] text-white">Shift</span>
+                        & drag between nodes. <br class="hidden md:inline">
+                        <span class="inline md:hidden font-semibold text-violet-300">Mobile:</span> Tap <span
+                            class="text-violet-400 font-bold">Normal</span> to activate <span
+                            class="text-violet-400 font-bold">Link Mode</span>, then drag.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Navigation & Camera dock floating buttons -->
+            <div class="absolute bottom-20 right-6 hidden md:flex items-center gap-2 z-10">
+                <button id="cam-fit-view"
+                    class="w-11 h-11 rounded-full bg-zinc-900/90 hover:bg-zinc-850 border border-zinc-800/80 text-zinc-300 hover:text-white flex items-center justify-center shadow-lg active:scale-90 spring-transition"
+                    title="Recenter View">
+                    <i data-lucide="maximize" class="w-5 h-5"></i>
+                </button>
+                <button id="cam-zoom-in"
+                    class="w-11 h-11 rounded-full bg-zinc-900/90 hover:bg-zinc-850 border border-zinc-800/80 text-zinc-300 hover:text-white flex items-center justify-center shadow-lg active:scale-90 spring-transition"
+                    title="Zoom In">
+                    <i data-lucide="plus" class="w-5 h-5"></i>
+                </button>
+                <button id="cam-zoom-out"
+                    class="w-11 h-11 rounded-full bg-zinc-900/90 hover:bg-zinc-850 border border-zinc-800/80 text-zinc-300 hover:text-white flex items-center justify-center shadow-lg active:scale-90 spring-transition"
+                    title="Zoom Out">
+                    <i data-lucide="minus" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Quick Controls Desktop (Lower Right Panel) -->
+            <div class="absolute bottom-6 right-6 hidden md:flex items-center gap-2 z-10">
+                <button id="btn-desktop-settings"
+                    class="p-2.5 flex items-center gap-1.5 text-xs text-zinc-300 bg-zinc-950/80 border border-zinc-800 hover:border-zinc-700 rounded-xl shadow-lg active:scale-95 transition-all"
+                    title="System Engine Tuning">
+                    <i data-lucide="sliders-horizontal" class="w-4 h-4 text-violet-400"></i>
+                    <span>Engine Settings</span>
+                </button>
+                <button id="btn-desktop-reset"
+                    class="p-2.5 flex items-center gap-1.5 text-xs text-red-400 bg-zinc-950/80 border border-zinc-800 hover:border-red-950 hover:bg-red-950/20 rounded-xl shadow-lg active:scale-95 transition-all"
+                    title="Reset Seed Data">
+                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                    <span>Reset Seed</span>
+                </button>
+            </div>
+
+            <!-- Toast Alerts Container -->
+            <div id="toast"
+                class="absolute bottom-24 md:bottom-10 left-1/2 -translate-x-1/2 px-4 py-2.5 bg-zinc-900/95 border border-zinc-800/90 text-white rounded-full text-xs font-semibold shadow-2xl pointer-events-none transform translate-y-12 opacity-0 spring-transition flex items-center gap-2 z-50">
+                <i data-lucide="info" class="w-4 h-4 text-violet-400"></i>
+                <span id="toast-text">Alert prompt updated</span>
+            </div>
+
+            <!-- COLLAPSED SIDEBAR BUTTON (Desktop only) -->
+            <button id="btn-expand-sidebar"
+                class="hidden w-10 h-10 rounded-r-xl border-y border-r border-zinc-800 bg-zinc-950/90 text-zinc-400 hover:text-white absolute left-0 top-4 items-center justify-center z-10 spring-transition"
+                style="display: none;">
+                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+            </button>
+
+            <!-- iOS NATIVE-STYLE TAB BAR (MOBILE ONLY) -->
+            <nav
+                class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-zinc-950/90 backdrop-blur-lg border-t border-zinc-900 flex items-center justify-around z-30 pb-[env(safe-area-inset-bottom)]">
+                <button id="m-tab-graph" class="flex flex-col items-center gap-1 p-2 text-violet-400 transition-colors">
+                    <i data-lucide="network" class="w-5 h-5"></i>
+                    <span class="text-[10px] font-medium">Graph</span>
+                </button>
+                <button id="m-tab-search"
+                    class="flex flex-col items-center gap-1 p-2 text-zinc-500 hover:text-white transition-colors">
+                    <i data-lucide="search" class="w-5 h-5"></i>
+                    <span class="text-[10px] font-medium">Search</span>
+                </button>
+                <button id="m-tab-add"
+                    class="flex flex-col items-center gap-1 p-2 text-zinc-500 hover:text-white transition-colors">
+                    <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                    <span class="text-[10px] font-medium">Add Word</span>
+                </button>
+                <button id="m-tab-filters"
+                    class="flex flex-col items-center gap-1 p-2 text-zinc-500 hover:text-white transition-colors">
+                    <i data-lucide="sliders" class="w-5 h-5"></i>
+                    <span class="text-[10px] font-medium">Filters</span>
+                </button>
+            </nav>
+
+        </main>
+
+        <!-- PREMIUM SLIDING COMPONENT: INSPECTOR PANEL -->
+        <section id="inspector"
+            class="fixed z-45 bg-zinc-950/95 backdrop-blur-xl border-zinc-800/85 spring-transition
+      md:top-0 md:right-0 md:h-full md:w-[380px] md:border-l md:translate-x-full md:translate-y-0
+      top-auto bottom-0 left-0 right-0 h-[65vh] w-full border-t rounded-t-[24px] md:rounded-t-none translate-y-full flex flex-col shadow-2xl safe-bottom hidden">
+
+            <!-- iOS Swipe-down indicator grab bar (Mobile Only) -->
+            <div class="md:hidden w-12 h-1.5 bg-zinc-800 rounded-full mx-auto my-3 shrink-0"></div>
+
+            <!-- Inspector Panel Header -->
+            <div
+                class="px-5 pb-3 pt-1 border-b border-zinc-900 flex justify-between items-center bg-zinc-950/20 shrink-0">
+                <div class="flex items-center gap-2">
+                    <span
+                        class="text-[10px] bg-violet-950/50 border border-violet-850 text-violet-400 font-mono font-bold px-2 py-0.5 rounded-full uppercase"
+                        id="inspector-pos">adj.</span>
+                    <span class="text-xs text-zinc-500 font-mono">Word Explorer</span>
+                </div>
+                <button id="inspector-close"
+                    class="p-1.5 rounded-full bg-zinc-900/60 text-zinc-400 hover:text-white transition-colors"
+                    onclick="closeInspector()">
+                    <i data-lucide="x" class="w-4.5 h-4.5"></i>
+                </button>
+            </div>
+
+            <!-- Inspector Content -->
+            <div class="flex-1 overflow-y-auto p-5 space-y-5 ios-scroll">
+                <div>
+                    <h2 id="inspector-title" class="text-3xl font-black text-white tracking-tight">meticulous</h2>
+                    <p id="inspector-pronunciation" class="text-xs text-zinc-500 italic mt-0.5 font-mono">/mɪˈtɪkjələs/
+                    </p>
+                </div>
+
+                <div class="space-y-1.5">
+                    <h3 class="text-[10px] uppercase tracking-wider text-zinc-500 font-bold font-mono">Semantic
+                        Definition</h3>
+                    <p id="inspector-definition"
+                        class="text-zinc-200 text-sm leading-relaxed bg-zinc-900/40 p-3.5 border border-zinc-900 rounded-2xl font-serif italic">
+                        Definition placeholder...
+                    </p>
+                </div>
+
+                <div class="space-y-1.5">
+                    <h3 class="text-[10px] uppercase tracking-wider text-zinc-500 font-bold font-mono">Contextual Usage
+                        Examples</h3>
+                    <ul id="inspector-examples" class="space-y-2 text-xs text-zinc-400 list-disc list-inside"></ul>
+                </div>
+
+                <div class="space-y-3 pt-2">
+                    <h3 class="text-[10px] uppercase tracking-wider text-zinc-500 font-bold font-mono">Word Network Map
+                    </h3>
+
+                    <div class="space-y-3 bg-zinc-900/30 p-3.5 rounded-2xl border border-zinc-900">
+                        <div>
+                            <span class="text-[9px] uppercase text-emerald-400 font-mono font-bold">Synonyms</span>
+                            <div class="flex flex-wrap gap-1.5 mt-1" id="inspector-synonyms"></div>
+                        </div>
+                        <div>
+                            <span class="text-[9px] uppercase text-rose-400 font-mono font-bold">Antonyms</span>
+                            <div class="flex flex-wrap gap-1.5 mt-1" id="inspector-antonyms"></div>
+                        </div>
+                        <div>
+                            <span class="text-[9px] uppercase text-zinc-400 font-mono font-bold">Other
+                                Connections</span>
+                            <div class="flex flex-wrap gap-1.5 mt-1" id="inspector-relations"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions bottom bar inside inspector -->
+            <div class="p-4 border-t border-zinc-900/80 bg-zinc-950 flex gap-2.5 shrink-0 safe-bottom-margin font-sans">
+                <button id="btn-inspector-edit"
+                    class="flex-1 py-3 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs text-white font-semibold rounded-xl flex items-center justify-center gap-1.5 active:scale-95 transition-transform">
+                    <i data-lucide="edit-3" class="w-4 h-4"></i> Edit Word
+                </button>
+                <button id="btn-inspector-delete"
+                    class="px-4 py-3 bg-red-950/30 border border-red-900/30 text-red-400 hover:text-red-300 rounded-xl active:scale-95 transition-transform font-sans">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- SYSTEM CONFIGURATION PANEL (Settings Hub for tuning parameters) -->
+        <!-- Mobile: slide-up bottom sheet. Desktop: Elegant full-screen blurred modal dialog overlay. -->
+        <section id="settings-panel"
+            class="fixed h-full z-50 bg-zinc-950/95 backdrop-blur-xl border-zinc-800/85 spring-transition
+      md:fixed md:inset-0 md:bg-black/85 md:backdrop-blur-md md:flex md:items-center md:justify-center md:opacity-0 md:pointer-events-none md:translate-y-0 md:rounded-none md:border-none
+      top-auto bottom-0 left-0 right-0 h-[80vh] w-full border-t rounded-t-[24px] translate-y-full flex flex-col shadow-2xl safe-bottom">
+
+            <!-- Container card inside the overlay modal on desktop -->
+            <div
+                class="flex-1 flex flex-col overflow-hidden w-full h-full md:max-w-2xl md:max-h-[580px] md:bg-zinc-950 md:border md:border-zinc-800/80 md:rounded-[24px] md:shadow-2xl md:p-1">
+                <!-- Drag grab indicator mobile -->
+                <div class="md:hidden w-12 h-1.5 bg-zinc-800 rounded-full mx-auto my-3 shrink-0"></div>
+
+                <!-- Header -->
+                <div
+                    class="px-5 pb-3 pt-1 border-b border-zinc-900 flex justify-between items-center bg-zinc-950/20 shrink-0 md:py-4">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="sliders" class="w-4.5 h-4.5 text-violet-400"></i>
+                        <span class="text-xs uppercase tracking-wider font-mono font-bold text-zinc-300">Engine
+                            Settings</span>
+                    </div>
+                    <button id="settings-close"
+                        class="p-1.5 rounded-full bg-zinc-900/60 text-zinc-400 hover:text-white transition-colors">
+                        <i data-lucide="x" class="w-4.5 h-4.5"></i>
+                    </button>
+                </div>
+
+                <!-- Settings Sliders Content - Two columns on desktop -->
+                <div
+                    class="flex-1 overflow-y-auto p-5 space-y-6 ios-scroll md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-6 md:space-y-0">
+
+                    <!-- Physics Section -->
+                    <div class="space-y-4">
+                        <h4
+                            class="text-[10px] font-mono font-bold text-violet-400 uppercase tracking-widest border-b border-zinc-900 pb-1.5">
+                            Force Layout Physics</h4>
+
+                        <!-- Repulsion force -->
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-zinc-350">Node Repulsion</span>
+                                <span id="val-repulsion" class="font-mono text-violet-400">7500</span>
+                            </div>
+                            <input type="range" id="slider-repulsion" min="1000" max="15000" step="500" value="7500"
+                                class="w-full accent-violet-500 h-1 bg-zinc-800 rounded">
+                            <p class="text-[9px] text-zinc-500 leading-normal">Sets how aggressively node items push
+                                away from neighboring entities.</p>
+                        </div>
+
+                        <!-- Spring Length -->
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-zinc-350">Target Spring Length</span>
+                                <span id="val-spring" class="font-mono text-violet-400">130px</span>
+                            </div>
+                            <input type="range" id="slider-spring" min="50" max="300" step="10" value="130"
+                                class="w-full accent-violet-500 h-1 bg-zinc-800 rounded">
+                            <p class="text-[9px] text-zinc-500 leading-normal">Defines the target line-length for linked
+                                dictionary items.</p>
+                        </div>
+
+                        <!-- Spring stiffness -->
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-zinc-350">Spring Elastic Strength</span>
+                                <span id="val-springK" class="font-mono text-violet-400">0.07</span>
+                            </div>
+                            <input type="range" id="slider-springK" min="0.01" max="0.30" step="0.01" value="0.07"
+                                class="w-full accent-violet-500 h-1 bg-zinc-800 rounded">
+                            <p class="text-[9px] text-zinc-500 leading-normal">Stiffness of the link constraints. High
+                                values snap words together tightly.</p>
+                        </div>
+                    </div>
+
+                    <!-- Style & Mechanics Section -->
+                    <div class="space-y-4">
+                        <h4
+                            class="text-[10px] font-mono font-bold text-violet-400 uppercase tracking-widest border-b border-zinc-900 pb-1.5">
+                            Mechanical Limits & Styles</h4>
+
+                        <!-- Central Gravity -->
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-zinc-350">Central Gravity Pull</span>
+                                <span id="val-gravity" class="font-mono text-violet-400">0.009</span>
+                            </div>
+                            <input type="range" id="slider-gravity" min="0.001" max="0.050" step="0.002" value="0.009"
+                                class="w-full accent-violet-500 h-1 bg-zinc-800 rounded">
+                            <p class="text-[9px] text-zinc-500 leading-normal">Pulls isolated island nodes back towards
+                                the center of your screen.</p>
+                        </div>
+
+                        <!-- Dampening friction -->
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-zinc-350">Damping Friction</span>
+                                <span id="val-friction" class="font-mono text-violet-400">82%</span>
+                            </div>
+                            <input type="range" id="slider-friction" min="50" max="98" step="1" value="82"
+                                class="w-full accent-violet-500 h-1 bg-zinc-800 rounded">
+                            <p class="text-[9px] text-zinc-500 leading-normal">Controls speed decay. High percentages
+                                cause long sliding kinetics.</p>
+                        </div>
+
+                        <!-- Node Radius multiplier -->
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-zinc-350">Base Node Size</span>
+                                <span id="val-nodeRadius" class="font-mono text-violet-400">22</span>
+                            </div>
+                            <input type="range" id="slider-nodeRadius" min="12" max="40" step="1" value="22"
+                                class="w-full accent-violet-500 h-1 bg-zinc-800 rounded">
+                            <p class="text-[9px] text-zinc-500 leading-normal">Adjusts the base circle radius of all
+                                drawn word tokens.</p>
+                        </div>
+                    </div>
+
+                    <!-- Danger Storage Section (Spans full width on desktop) -->
+                    <div class="space-y-3 pt-2 md:col-span-2 md:border-t md:border-zinc-900 md:pt-4">
+                        <h4
+                            class="text-[10px] font-mono font-bold text-red-500 uppercase tracking-widest border-b border-zinc-900 pb-1.5">
+                            Danger Storage Control</h4>
+
+                        <div class="flex flex-col gap-3 md:flex-row md:justify-between md:items-center">
+                            <p class="text-[10px] text-zinc-400 leading-normal max-w-sm">Wiping completely erases
+                                IndexedDB nodes and edges. Resetting parameters restores layout physics calculations to
+                                defaults.</p>
+                            <div class="flex flex-col gap-2 shrink-0 md:flex-row">
+                                <button id="btn-danger-reset-setting"
+                                    class="py-2.5 px-4 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 text-zinc-300 rounded-xl text-xs font-medium transition-all"
+                                    title="Reset Slide Values Only">
+                                    Reset Engine Constants Only
+                                </button>
+                                <button id="btn-danger-wipe"
+                                    class="py-2.5 px-4 bg-red-950/20 hover:bg-red-950/40 border border-red-900/40 text-red-400 hover:text-red-300 rounded-xl text-xs font-semibold active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    <span>Erase Local Database</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- GESTURE INTERACTIVE CREATION DIALOG -->
+    <div id="link-dialog"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-[22px] max-w-sm w-full p-5 shadow-2xl space-y-4">
+            <div class="flex items-center gap-2 text-violet-400">
+                <i data-lucide="git-merge" class="w-5 h-5"></i>
+                <h4 class="text-sm font-bold uppercase tracking-wider font-mono">Create Semantic Link</h4>
+            </div>
+            <p class="text-xs text-zinc-400 leading-normal">
+                Select the matching relationship connection category between <strong id="link-source"
+                    class="text-white font-semibold">Node A</strong> and <strong id="link-target"
+                    class="text-white font-semibold">Node B</strong>:
+            </p>
+
+            <div class="grid grid-cols-2 gap-2">
+                <button id="link-opt-synonym"
+                    class="py-3 px-2 border border-emerald-950/80 bg-emerald-950/10 hover:bg-emerald-950/30 text-emerald-400 rounded-xl font-mono text-xs font-bold active:scale-95 transition-all">
+                    Synonym
+                </button>
+                <button id="link-opt-antonym"
+                    class="py-3 px-2 border border-rose-950/80 bg-rose-950/10 hover:bg-rose-950/30 text-rose-400 rounded-xl font-mono text-xs font-bold active:scale-95 transition-all">
+                    Antonym
+                </button>
+                <button id="link-opt-hypernym"
+                    class="py-3 px-2 border border-amber-950/80 bg-amber-950/10 hover:bg-amber-950/30 text-amber-400 rounded-xl font-mono text-xs font-bold active:scale-95 transition-all">
+                    Hypernym
+                </button>
+                <button id="link-opt-related"
+                    class="py-3 px-2 border border-violet-950/80 bg-violet-950/10 hover:bg-violet-950/30 text-violet-400 rounded-xl font-mono text-xs font-bold active:scale-95 transition-all">
+                    Related
+                </button>
+            </div>
+
+            <div class="flex justify-end pt-2">
+                <button id="link-opt-cancel"
+                    class="px-4 py-2 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 text-xs text-zinc-300 rounded-xl active:scale-95 transition-all font-semibold">
+                    Cancel Link
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- iOS MOBILE FULL-SCREEN SHEET OVERLAYS -->
+
+    <!-- 1. Mobile Search Overlay -->
+    <div id="m-overlay-search"
+        class="fixed inset-0 bg-black/95 z-40 p-4 safe-top flex flex-col transition-all duration-300 transform translate-y-full md:hidden">
+        <div class="flex items-center justify-between mb-4 pb-2 border-b border-zinc-900">
+            <h3 class="text-sm font-bold uppercase tracking-wider font-mono text-zinc-400">Search Dictionary</h3>
+            <button id="btn-close-search"
+                class="text-xs font-semibold text-zinc-400 hover:text-white px-2 py-1 bg-zinc-900 rounded-lg font-sans">Done</button>
+        </div>
+        <div class="relative mb-4">
+            <i data-lucide="search" class="absolute left-3.5 top-3 w-4 h-4 text-zinc-500"></i>
+            <input type="text" id="mobile-search" placeholder="Type word to locate..."
+                class="w-full pl-10 pr-8 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none">
+            <button id="mobile-search-clear" class="absolute right-3 top-3 text-zinc-500 hidden"><i data-lucide="x"
+                    class="w-4 h-4"></i></button>
+        </div>
+        <div id="mobile-suggestions" class="flex-1 overflow-y-auto ios-scroll space-y-1"></div>
+    </div>
+
+    <!-- 2. Mobile Word Builder Overlay -->
+    <div id="m-overlay-add"
+        class="fixed inset-0 bg-black/95 z-40 p-4 safe-top flex flex-col transition-all duration-300 transform translate-y-full md:hidden">
+        <div class="flex justify-between items-center mb-4 pb-2 border-b border-zinc-900">
+            <h3 class="text-sm font-bold uppercase tracking-wider font-mono text-zinc-400">Create New Node</h3>
+            <button id="btn-close-add"
+                class="text-xs font-semibold text-zinc-400 hover:text-white px-2 py-1 bg-zinc-900 rounded-lg font-sans">Cancel</button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto ios-scroll pb-24">
+            <form id="mobile-add-form" class="space-y-4">
+                <div>
+                    <label class="text-[10px] text-zinc-500 uppercase font-mono mb-1 block">Vocabulary Word</label>
+                    <input type="text" id="m-new-word" placeholder="Word (e.g., tenacity)" required
+                        class="w-full px-3.5 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-white focus:outline-none focus:border-violet-500">
+                </div>
+                <div>
+                    <label class="text-[10px] text-zinc-500 uppercase font-mono mb-1 block">Part Of Speech</label>
+                    <select id="m-new-pos"
+                        class="w-full px-3.5 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-zinc-350 focus:outline-none">
+                        <option value="noun">Noun (n.)</option>
+                        <option value="verb">Verb (v.)</option>
+                        <option value="adj">Adjective (adj.)</option>
+                        <option value="adv">Adverb (adv.)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] text-zinc-500 uppercase font-mono mb-1 block">Semantic Definition</label>
+                    <textarea id="m-new-def" placeholder="Word Definition/Meaning..." required rows="3"
+                        class="w-full px-3.5 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-white focus:outline-none focus:border-violet-500"></textarea>
+                </div>
+
+                <div class="border-t border-zinc-900 pt-4">
+                    <label class="text-[10px] text-zinc-500 uppercase font-mono mb-1 block">Optional Semantic
+                        Link</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="m-new-rel" placeholder="Related word"
+                            class="px-3.5 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-white focus:outline-none">
+                        <select id="m-new-rel-type"
+                            class="px-3.5 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-zinc-350 focus:outline-none">
+                            <option value="synonym">Synonym</option>
+                            <option value="antonym">Antonym</option>
+                            <option value="hypernym">Hypernym</option>
+                            <option value="related">Related</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit"
+                    class="w-full py-4 bg-violet-600 active:scale-95 transition-all rounded-xl text-sm font-semibold text-white mt-4 flex items-center justify-center gap-2 font-sans">
+                    <i data-lucide="plus-circle" class="w-5 h-5"></i> Create Node Document
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. Mobile Filters Overlay -->
+    <div id="m-overlay-filters"
+        class="fixed inset-0 bg-black/95 z-40 p-4 safe-top flex flex-col transition-all duration-300 transform translate-y-full md:hidden">
+        <div class="flex justify-between items-center mb-4 pb-2 border-b border-zinc-900">
+            <h3 class="text-sm font-bold uppercase tracking-wider font-mono text-zinc-400">Layout Scope Filters</h3>
+            <button id="btn-close-filters"
+                class="text-xs font-semibold text-zinc-400 hover:text-white px-2 py-1 bg-zinc-900 rounded-lg font-sans">Done</button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto ios-scroll space-y-6">
+            <div>
+                <label class="text-[10px] text-zinc-500 uppercase font-mono mb-2 block">Scope Mode</label>
+                <div class="grid grid-cols-2 gap-2 bg-zinc-900 p-1 rounded-xl border border-zinc-800">
+                    <button id="m-scope-global"
+                        class="py-2.5 text-xs rounded-lg text-center transition-colors bg-zinc-850 text-violet-400 font-medium">Global
+                        Scope</button>
+                    <button id="m-scope-local"
+                        class="py-2.5 text-xs rounded-lg text-center transition-colors text-zinc-400 font-medium">Local
+                        Focus</button>
+                </div>
+            </div>
+
+            <div>
+                <label class="text-[10px] text-zinc-500 uppercase font-mono mb-1 block">Active Connections</label>
+                <div class="space-y-1 bg-zinc-905 rounded-xl" id="mobile-filters">
+                    <label
+                        class="flex items-center justify-between py-3 border-b border-zinc-900 text-sm text-zinc-300 cursor-pointer">
+                        <span class="flex items-center gap-2.5"><span
+                                class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>Synonyms</span>
+                        <input type="checkbox" data-edge-type="synonym" checked
+                            class="w-5 h-5 rounded border-zinc-700 bg-zinc-900 text-violet-500">
+                    </label>
+                    <label
+                        class="flex items-center justify-between py-3 border-b border-zinc-900 text-sm text-zinc-300 cursor-pointer">
+                        <span class="flex items-center gap-2.5"><span
+                                class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>Antonyms</span>
+                        <input type="checkbox" data-edge-type="antonym" checked
+                            class="w-5 h-5 rounded border-zinc-700 bg-zinc-900 text-violet-500">
+                    </label>
+                    <label
+                        class="flex items-center justify-between py-3 border-b border-zinc-900 text-sm text-zinc-300 cursor-pointer">
+                        <span class="flex items-center gap-2.5"><span
+                                class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>Hypernyms</span>
+                        <input type="checkbox" data-edge-type="hypernym" checked
+                            class="w-5 h-5 rounded border-zinc-700 bg-zinc-900 text-violet-500">
+                    </label>
+                    <label class="flex items-center justify-between py-3 text-sm text-zinc-300 cursor-pointer">
+                        <span class="flex items-center gap-2.5"><span
+                                class="w-2.5 h-2.5 rounded-full bg-violet-500"></span>Related Words</span>
+                        <input type="checkbox" data-edge-type="related" checked
+                            class="w-5 h-5 rounded border-zinc-700 bg-zinc-900 text-violet-500">
+                    </label>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex items-center justify-between text-xs text-zinc-400 mb-1.5">
+                    <span>Local Hops depth limit</span>
+                    <span id="m-depth-val" class="font-mono text-violet-400">2 hops</span>
+                </div>
+                <input type="range" id="m-depth-slider" min="1" max="4" value="2"
+                    class="w-full accent-violet-500 h-1 bg-zinc-800 rounded cursor-pointer">
+            </div>
+        </div>
+    </div>
+
+    <!-- SYSTEM MODAL (Edit Dictionary Item) -->
+    <div id="edit-modal"
+        class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-[20px] max-w-md w-full overflow-hidden shadow-2xl">
+            <div class="p-4 border-b border-zinc-900 flex justify-between items-center">
+                <h3 class="text-xs uppercase tracking-widest font-mono text-zinc-400">Edit Semantic Node</h3>
+                <button id="edit-modal-close" class="text-zinc-500 hover:text-white"><i data-lucide="x"
+                        class="w-4.5 h-4.5"></i></button>
+            </div>
+            <form id="edit-word-form" class="p-5 space-y-4">
+                <input type="hidden" id="edit-word-id">
+                <div>
+                    <label class="text-[10px] text-zinc-500 font-mono block mb-1">Vocabulary Word</label>
+                    <input type="text" id="edit-word" readonly
+                        class="w-full px-3.5 py-2.5 bg-zinc-900 border border-zinc-850 rounded-xl text-sm text-zinc-400 focus:outline-none">
+                </div>
+                <div>
+                    <label class="text-[10px] text-zinc-500 font-mono block mb-1">Part of Speech</label>
+                    <select id="edit-pos"
+                        class="w-full px-3.5 py-2.5 bg-zinc-900 border border-zinc-850 rounded-xl text-sm focus:outline-none">
+                        <option value="noun">Noun</option>
+                        <option value="verb">Verb</option>
+                        <option value="adj">Adjective</option>
+                        <option value="adv">Adverb</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] text-zinc-500 font-mono block mb-1">Semantic Definition</label>
+                    <textarea id="edit-definition" required rows="3"
+                        class="w-full px-3.5 py-2.5 bg-zinc-900 border border-zinc-850 rounded-xl text-sm focus:outline-none focus:border-violet-500"></textarea>
+                </div>
+                <div>
+                    <label class="text-[10px] text-zinc-500 font-mono block mb-1">Contextual Examples (separated by new
+                        lines)</label>
+                    <textarea id="edit-examples" rows="3"
+                        class="w-full px-3.5 py-2.5 bg-zinc-900 border border-zinc-850 rounded-xl text-sm focus:outline-none focus:border-violet-500"></textarea>
+                </div>
+                <div class="flex justify-end gap-2.5 pt-2">
+                    <button type="button" id="edit-modal-cancel"
+                        class="px-4 py-2.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 rounded-xl text-xs font-semibold text-zinc-300">Cancel</button>
+                    <button type="submit"
+                        class="px-5 py-2.5 bg-violet-600 rounded-xl text-xs font-semibold text-white">Save
+                        Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <input type="file" id="file-import-input" class="hidden" accept=".json">
+
+    <!-- ENGINE MODULE SCRIPTS -->
+    <script src="app.js"></script>
+</body>
+
+</html>
