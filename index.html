@@ -108,8 +108,20 @@
                                 <option value="adj">Adjective (adj.)</option>
                                 <option value="adv">Adverb (adv.)</option>
                             </select>
-                            <textarea id="d-new-def" placeholder="Definition..." required rows="2"
-                                class="w-full px-3 py-2 bg-zinc-900/60 border border-zinc-800 rounded-lg text-xs placeholder-zinc-500 focus:outline-none focus:border-violet-500"></textarea>
+
+                            <!-- 🔥 แทนที่ definition เดียว ด้วย 2 ภาษา -->
+                            <div>
+                                <label class="text-[10px] text-zinc-500 uppercase font-mono block mb-1">Definition
+                                    (English)</label>
+                                <textarea id="d-new-def-en" placeholder="Definition in English..." required rows="2"
+                                    class="w-full px-3 py-2 bg-zinc-900/60 border border-zinc-800 rounded-lg text-xs placeholder-zinc-500 focus:outline-none focus:border-violet-500"></textarea>
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-zinc-500 uppercase font-mono block mb-1">คำนิยาม
+                                    (ภาษาไทย)</label>
+                                <textarea id="d-new-def-th" placeholder="คำจำกัดความภาษาไทย..." rows="2"
+                                    class="w-full px-3 py-2 bg-zinc-900/60 border border-zinc-800 rounded-lg text-xs placeholder-zinc-500 focus:outline-none focus:border-violet-500"></textarea>
+                            </div>
 
                             <div class="grid grid-cols-2 gap-1.5">
                                 <input type="text" id="d-new-rel" placeholder="Related Word"
@@ -381,13 +393,11 @@
                     </p>
                 </div>
 
+                <!-- 🔥 เปลี่ยนเป็น container สำหรับแสดงนิยามหลายภาษา -->
                 <div class="space-y-1.5">
                     <h3 class="text-[10px] uppercase tracking-wider text-zinc-500 font-bold font-mono">Semantic
                         Definition</h3>
-                    <p id="inspector-definition"
-                        class="text-zinc-200 text-sm leading-relaxed bg-zinc-900/40 p-3.5 border border-zinc-900 rounded-2xl font-serif italic">
-                        Definition placeholder...
-                    </p>
+                    <div id="inspector-definitions" class="space-y-2"></div>
                 </div>
 
                 <div class="space-y-1.5">
@@ -432,19 +442,15 @@
         </section>
 
         <!-- SYSTEM CONFIGURATION PANEL (Settings Hub for tuning parameters) -->
-        <!-- Mobile: slide-up bottom sheet. Desktop: Elegant full-screen blurred modal dialog overlay. -->
         <section id="settings-panel"
             class="fixed h-full z-50 bg-zinc-950/95 backdrop-blur-xl border-zinc-800/85 spring-transition
       md:fixed md:inset-0 md:bg-black/85 md:backdrop-blur-md md:flex md:items-center md:justify-center md:opacity-0 md:pointer-events-none md:translate-y-0 md:rounded-none md:border-none
       top-auto bottom-0 left-0 right-0 h-[80vh] w-full border-t rounded-t-[24px] translate-y-full flex flex-col shadow-2xl safe-bottom">
 
-            <!-- Container card inside the overlay modal on desktop -->
             <div
                 class="flex-1 flex flex-col overflow-hidden w-full h-full md:max-w-2xl md:max-h-[580px] md:bg-zinc-950 md:border md:border-zinc-800/80 md:rounded-[24px] md:shadow-2xl md:p-1">
-                <!-- Drag grab indicator mobile -->
                 <div class="md:hidden w-12 h-1.5 bg-zinc-800 rounded-full mx-auto my-3 shrink-0"></div>
 
-                <!-- Header -->
                 <div
                     class="px-5 pb-3 pt-1 border-b border-zinc-900 flex justify-between items-center bg-zinc-950/20 shrink-0 md:py-4">
                     <div class="flex items-center gap-2">
@@ -458,17 +464,14 @@
                     </button>
                 </div>
 
-                <!-- Settings Sliders Content - Two columns on desktop -->
                 <div
                     class="flex-1 overflow-y-auto p-5 space-y-6 ios-scroll md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-6 md:space-y-0">
 
-                    <!-- Physics Section -->
                     <div class="space-y-4">
                         <h4
                             class="text-[10px] font-mono font-bold text-violet-400 uppercase tracking-widest border-b border-zinc-900 pb-1.5">
                             Force Layout Physics</h4>
 
-                        <!-- Repulsion force -->
                         <div class="space-y-1.5">
                             <div class="flex justify-between items-center text-xs">
                                 <span class="text-zinc-350">Node Repulsion</span>
@@ -480,7 +483,6 @@
                                 away from neighboring entities.</p>
                         </div>
 
-                        <!-- Spring Length -->
                         <div class="space-y-1.5">
                             <div class="flex justify-between items-center text-xs">
                                 <span class="text-zinc-350">Target Spring Length</span>
@@ -492,7 +494,6 @@
                                 dictionary items.</p>
                         </div>
 
-                        <!-- Spring stiffness -->
                         <div class="space-y-1.5">
                             <div class="flex justify-between items-center text-xs">
                                 <span class="text-zinc-350">Spring Elastic Strength</span>
@@ -505,13 +506,11 @@
                         </div>
                     </div>
 
-                    <!-- Style & Mechanics Section -->
                     <div class="space-y-4">
                         <h4
                             class="text-[10px] font-mono font-bold text-violet-400 uppercase tracking-widest border-b border-zinc-900 pb-1.5">
                             Mechanical Limits & Styles</h4>
 
-                        <!-- Central Gravity -->
                         <div class="space-y-1.5">
                             <div class="flex justify-between items-center text-xs">
                                 <span class="text-zinc-350">Central Gravity Pull</span>
@@ -523,7 +522,6 @@
                                 the center of your screen.</p>
                         </div>
 
-                        <!-- Dampening friction -->
                         <div class="space-y-1.5">
                             <div class="flex justify-between items-center text-xs">
                                 <span class="text-zinc-350">Damping Friction</span>
@@ -535,7 +533,6 @@
                                 cause long sliding kinetics.</p>
                         </div>
 
-                        <!-- Node Radius multiplier -->
                         <div class="space-y-1.5">
                             <div class="flex justify-between items-center text-xs">
                                 <span class="text-zinc-350">Base Node Size</span>
@@ -548,7 +545,6 @@
                         </div>
                     </div>
 
-                    <!-- Danger Storage Section (Spans full width on desktop) -->
                     <div class="space-y-3 pt-2 md:col-span-2 md:border-t md:border-zinc-900 md:pt-4">
                         <h4
                             class="text-[10px] font-mono font-bold text-red-500 uppercase tracking-widest border-b border-zinc-900 pb-1.5">
@@ -620,6 +616,8 @@
         </div>
     </div>
 
+    <input type="file" id="file-import-input" class="hidden" accept=".json">
+
     <!-- iOS MOBILE FULL-SCREEN SHEET OVERLAYS -->
 
     <!-- 1. Mobile Search Overlay -->
@@ -666,9 +664,16 @@
                         <option value="adv">Adverb (adv.)</option>
                     </select>
                 </div>
+
+                <!-- 🔥 แทนที่ definition เดียว ด้วย 2 ภาษา (Mobile) -->
                 <div>
-                    <label class="text-[10px] text-zinc-500 uppercase font-mono mb-1 block">Semantic Definition</label>
-                    <textarea id="m-new-def" placeholder="Word Definition/Meaning..." required rows="3"
+                    <label class="text-[10px] text-zinc-500 uppercase font-mono mb-1 block">Definition (English)</label>
+                    <textarea id="m-new-def-en" placeholder="Definition in English..." required rows="3"
+                        class="w-full px-3.5 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-white focus:outline-none focus:border-violet-500"></textarea>
+                </div>
+                <div>
+                    <label class="text-[10px] text-zinc-500 uppercase font-mono mb-1 block">คำนิยาม (ภาษาไทย)</label>
+                    <textarea id="m-new-def-th" placeholder="คำจำกัดความภาษาไทย..." rows="3"
                         class="w-full px-3.5 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-white focus:outline-none focus:border-violet-500"></textarea>
                 </div>
 
@@ -788,11 +793,19 @@
                         <option value="adv">Adverb</option>
                     </select>
                 </div>
+
+                <!-- 🔥 แทนที่ definition เดียว ด้วย 2 ภาษา (Edit Modal) -->
                 <div>
-                    <label class="text-[10px] text-zinc-500 font-mono block mb-1">Semantic Definition</label>
-                    <textarea id="edit-definition" required rows="3"
+                    <label class="text-[10px] text-zinc-500 font-mono block mb-1">Definition (English)</label>
+                    <textarea id="edit-definition-en" required rows="3"
                         class="w-full px-3.5 py-2.5 bg-zinc-900 border border-zinc-850 rounded-xl text-sm focus:outline-none focus:border-violet-500"></textarea>
                 </div>
+                <div>
+                    <label class="text-[10px] text-zinc-500 font-mono block mb-1">คำนิยาม (ภาษาไทย)</label>
+                    <textarea id="edit-definition-th" rows="3"
+                        class="w-full px-3.5 py-2.5 bg-zinc-900 border border-zinc-850 rounded-xl text-sm focus:outline-none focus:border-violet-500"></textarea>
+                </div>
+
                 <div>
                     <label class="text-[10px] text-zinc-500 font-mono block mb-1">Contextual Examples (separated by new
                         lines)</label>
@@ -813,7 +826,7 @@
     <input type="file" id="file-import-input" class="hidden" accept=".json">
 
     <!-- ENGINE MODULE SCRIPTS -->
-    <script src="app.js"></script>
+    <script type="module" src="main.js"></script>
 </body>
 
 </html>
